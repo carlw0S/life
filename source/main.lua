@@ -1,28 +1,89 @@
-import "dvd" -- DEMO
-local dvd = dvd(1, -1) -- DEMO
+import "CoreLibs/crank"
 
-local gfx <const> = playdate.graphics
-local font = gfx.font.new('font/Mini Sans 2X') -- DEMO
+import "./globals"
+import "./Life"
 
-local function loadGame()
-	playdate.display.setRefreshRate(50) -- Sets framerate to 50 fps
-	math.randomseed(playdate.getSecondsSinceEpoch()) -- seed for math.random
-	gfx.setFont(font) -- DEMO
+
+
+-- Main variables
+
+local life
+
+local DEFAULT_LIFE_SIZE <const> = 7
+local DEFAULT_TICKS_PER_REVOLUTION <const> = 6
+
+-- > Options
+
+local lifeSize = DEFAULT_LIFE_SIZE
+local ticksPerRevolution = DEFAULT_TICKS_PER_REVOLUTION
+local autoPlayGens = 0
+
+
+
+-- Main functions
+
+local function resetLife()
+    life = Life(lifeSize)
+    autoPlayGens = 0
+end
+
+local function initGame()
+    playdate.display.setRefreshRate(50)
+    math.randomseed(playdate.getSecondsSinceEpoch())
+    resetLife()
+end
+
+local function processPlayerInput()
+    -- Set auto play/rewind
+    if playdate.buttonJustPressed(playdate.kButtonA) then
+        autoPlayGens = (autoPlayGens ~= 1) and 1 or 0
+        -- autoPlayGens = (autoPlayGens < 0) and 0 or (autoPlayGens + 1)
+    elseif playdate.buttonJustPressed(playdate.kButtonB) then
+        autoPlayGens = (autoPlayGens ~= -1) and -1 or 0
+        -- autoPlayGens = (autoPlayGens > 0) and 0 or (autoPlayGens - 1)
+    end
+    -- Change cell size
+    if playdate.buttonJustPressed(playdate.kButtonUp) then
+        if lifeSize < N_LIFE_SIZES then
+            lifeSize += 1
+            resetLife()
+        end
+    elseif playdate.buttonJustPressed(playdate.kButtonDown) then
+        if lifeSize > 1 then
+            lifeSize -= 1
+            resetLife()
+        end
+    end
+    -- Reset
+    if playdate.buttonJustPressed(playdate.kButtonLeft) then
+        resetLife()
+    end
 end
 
 local function updateGame()
-	dvd:update() -- DEMO
+    if autoPlayGens == 0 then
+        life:update(playdate.getCrankTicks(ticksPerRevolution))
+    else
+        if not life:update(autoPlayGens) then
+            autoPlayGens = 0
+        end
+    end
 end
 
 local function drawGame()
-	gfx.clear() -- Clears the screen
-	dvd:draw() -- DEMO
+    gfx.clear()
+    life:draw()
+    playdate.drawFPS(0,0)
 end
 
-loadGame()
+
+
+-- Main logic
+
+initGame()
 
 function playdate.update()
-	updateGame()
-	drawGame()
-	playdate.drawFPS(0,0) -- FPS widget
+    processPlayerInput()
+    updateGame()
+    drawGame()
 end

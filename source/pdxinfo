@@ -1,6 +1,6 @@
-name=Template
-author=You
-description=This is template project
-bundleID=com.organization.package
+name=Life
+author=carlw0S
+description=Conway's Game of Life, now on the Playdate, and a bit more interactive!
+bundleID=com.carlw0S.life
 version=0.0.1
 buildNumber=1
