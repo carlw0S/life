@@ -9,6 +9,8 @@ import "./Life"
 
 local life
 
+local evolution
+
 local DEFAULT_LIFE_SIZE <const> = 7
 local DEFAULT_TICKS_PER_REVOLUTION <const> = 6
 
@@ -23,7 +25,9 @@ local autoPlayGens = 0
 -- Main functions
 
 local function resetLife()
+    gfx.clear()
     life = Life(lifeSize)
+    life:draw()
     autoPlayGens = 0
 end
 
@@ -62,17 +66,20 @@ end
 
 local function updateGame()
     if autoPlayGens == 0 then
-        life:update(playdate.getCrankTicks(ticksPerRevolution))
+        evolution = life:update(playdate.getCrankTicks(ticksPerRevolution))
     else
-        if not life:update(autoPlayGens) then
-            autoPlayGens = 0
+        evolution = life:update(autoPlayGens)
+        if evolution == 0 then
+            autoPlayGens = 0 -- Basically, stop Auto-play when rewound to the initial state
         end
     end
 end
 
 local function drawGame()
-    gfx.clear()
-    life:draw()
+    if evolution ~= 0 then
+        gfx.clear()
+        life:draw()
+    end
     playdate.drawFPS(0,0)
 end
 

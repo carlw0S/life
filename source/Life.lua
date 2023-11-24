@@ -25,19 +25,19 @@ function Life:init(iCellSize)
     self.savedGrids = {}
 end
 
+-- Returns the number of generations advanced (positive) or restored (negative)
 function Life:update(nGens)
-    if nGens >= 0 then
+    if nGens > 0 then
         for _ = 1, nGens do
             self:_advance()
         end
-    else
+        return nGens -- Advanced generations
+    elseif nGens < 0 then
         if #self.savedGrids > 0 then
-            self:_restore(-nGens)
-        else
-            return false
+            return self:_restore(-nGens) -- Restored generations
         end
     end
-    return true
+    return 0 -- No changes
 end
 
 function Life:draw()
@@ -113,14 +113,16 @@ function Life:_count(x, y)
 end
 
 function Life:_restore(n)
-    local iGen = #self.savedGrids - (n - 1)
+    local nSavedGrids = #self.savedGrids
+    local iGen = nSavedGrids - (n - 1)
     iGen = (iGen > 0) and iGen or 1 -- Using kind of a ternary operator
     for i = 0, self.xEnd, self.cellSize do
         for j = 0, self.yEnd, self.cellSize do
             self.grid[i][j] = self.savedGrids[iGen][i][j]
         end
     end
-    for k = #self.savedGrids, iGen, -1 do
+    for k = nSavedGrids, iGen, -1 do
         self.savedGrids[k] = nil
     end
+    return nSavedGrids - (iGen - 1)
 end
