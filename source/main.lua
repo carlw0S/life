@@ -14,6 +14,12 @@ local evolution
 local DEFAULT_LIFE_SIZE <const> = 7
 local DEFAULT_TICKS_PER_REVOLUTION <const> = 6
 
+local SYNTH <const> = playdate.sound.synth.new(playdate.sound.kWaveSine)
+local NOTE_VOLUME <const> = 0.5
+local NOTE_LENGTH <const> = 0.005
+local FORWARD_NOTE <const> = "B4"
+local REWIND_NOTE <const> = "G4"
+
 -- > Options
 
 local lifeSize = DEFAULT_LIFE_SIZE
@@ -79,6 +85,11 @@ local function drawGame()
     if evolution ~= 0 then
         gfx.clear()
         life:draw()
+        if evolution > 0 then
+            SYNTH:playMIDINote(FORWARD_NOTE, NOTE_VOLUME, NOTE_LENGTH)
+        else
+            SYNTH:playMIDINote(REWIND_NOTE, NOTE_VOLUME, NOTE_LENGTH)
+        end
     end
     playdate.drawFPS(0,0)
 end
