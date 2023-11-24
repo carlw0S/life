@@ -70,7 +70,7 @@ local function updateGame()
     else
         evolution = life:update(autoPlayGens)
         if evolution == 0 then
-            autoPlayGens = 0 -- Basically, stop Auto-play when rewound to the initial state
+            autoPlayGens = 0 -- Basically, stop Auto-play when stagnated or rewound to the initial state
         end
     end
 end

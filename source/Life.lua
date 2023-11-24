@@ -23,17 +23,19 @@ function Life:init(iCellSize)
     self.nextGrid = {}
     self:_initGrids()
     self.savedGrids = {}
+    self.stagnated = false
 end
 
 -- Returns the number of generations advanced (positive) or restored (negative)
 function Life:update(nGens)
-    if nGens > 0 then
+    if nGens > 0 and not self.stagnated then
         for _ = 1, nGens do
             self:_advance()
         end
         return nGens -- Advanced generations
     elseif nGens < 0 then
         if #self.savedGrids > 0 then
+            self.stagnated = false
             return self:_restore(-nGens) -- Restored generations
         end
     end
@@ -75,6 +77,7 @@ end
 -- > update
 
 function Life:_advance()
+    self.stagnated = true
     local nSaved = #self.savedGrids + 1
     self.savedGrids[nSaved] = {}
     for i = 0, self.xEnd, self.cellSize do
@@ -82,6 +85,7 @@ function Life:_advance()
         for j = 0, self.yEnd, self.cellSize do
             self.savedGrids[nSaved][i][j] = self.grid[i][j]
             self:_advanceCell(i, j)
+            self.stagnated = self.stagnated and self.grid[i][j] == self.nextGrid[i][j]
         end
     end
     self.grid, self.nextGrid = self.nextGrid, self.grid
