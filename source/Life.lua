@@ -36,7 +36,7 @@ function Life:update(nGens)
     elseif nGens < 0 then
         if #self.savedGrids > 0 then
             self.stagnated = false
-            return self:_restore(-nGens) -- Restored generations
+            return -self:_restore(-nGens) -- Restored generations
         end
     end
     return 0 -- No changes
